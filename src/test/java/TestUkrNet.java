@@ -42,7 +42,7 @@ public class TestUkrNet extends ChomeClass {
         initWebDriver();
         driver.get("https://rozetka.com.ua/");
         setTimeOut(10);
-        driver.navigate().refresh();
+        refreshTab();
 //
 //        WebElement selectionList = driver.findElement(By.xpath("//select[@class='chosen-select']"));
 //        Select selectObject = new Select(selectionList);
