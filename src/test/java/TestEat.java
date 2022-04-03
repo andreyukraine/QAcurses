@@ -3,61 +3,60 @@ import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-public class TestEat extends ChomeClass {
+public class TestEat extends WebDriverClass {
 
     private String siteUrl = "https://qa2.eatstreet.com";
 
     @Test
     public void openSign(){
-        initWebDriver();
         driver.get(siteUrl + "/signin");
-        driver.findElement(By.xpath("//*[@id=\"menu-signin\"]")).click();
-        driver.quit();
+        driver.findElement(By.xpath("//*[@id='menu-signin']")).click();
     }
 
     @Test
     public void openRegister(){
-        initWebDriver();
         driver.get(siteUrl + "/create-account");
+
         String genName = System.currentTimeMillis() + "_andrey@gmail.com";
-        driver.findElement(By.xpath("//input[@id=\"email\"]")).sendKeys(genName);
-        driver.findElement(By.xpath("//input[@id=\"password\"]")).sendKeys("Zaqxsw123qaz");
-        driver.findElement(By.xpath("//input[@id=\"passwordAgain\"]")).sendKeys("Zaqxsw123qaz");
-        driver.findElement(By.xpath("//button[@id=\"signup\"]")).click();
-        driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
-        driver.findElement(By.xpath("//a[@id=\"menu-my-account\"]"));
-        driver.quit();
+        String passTest = "Zaqxsw123qaz";
+
+        setTextByLocator("//input[@id='email']",genName);
+        setTextByLocator("//input[@id='password']",passTest);
+        setTextByLocator("//input[@id='passwordAgain']",passTest);
+
+        clickByLocator("//button[@id='signup']");
+
+        waitElementByLocator("//a[@id='menu-my-account']", 10);
+
+        Assert.assertNotNull(driver.findElement(By.xpath("//a[@id='menu-my-account']")));
     }
 
     @Test
     public void addCart(){
-        initWebDriver();
         driver.get(siteUrl + "/tempe-az/restaurants/munch-a-lunch/options/6369413");
-        driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
-        String productName = driver.findElement(By.xpath("//div[@class='widget-header']/div/h2")).getText().toLowerCase();
-        driver.findElement(By.xpath("//input[@id='91334404']")).click();
-        driver.findElement(By.xpath("//a[@id='confirm-options']")).click();
-        driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+
+        waitElementByLocator("//div[@class='widget-header']/div/h2", 10);
+
+        String productName = getTextByLocator("//div[@class='widget-header']/div/h2").toLowerCase();
+
+        clickByLocator("//input[@id='91334404']");
+        clickByLocator("//a[@id='confirm-options']");
+
+        waitElementByLocator("//tr[@class='ng-scope']", 10);
+
         Assert.assertTrue(isProductByCart(productName));
     }
 
 
     public boolean isProductByCart(String name){
-
-        List<WebElement> itemsList = driver.findElements(By.xpath("//tr[@class=\"ng-scope\"]"));
-
-        if (itemsList.size() < 1){
-            System.out.println("Elements not find");
-            return false;
+        List<WebElement> itemsList = getListElementByLocator("//tr[@class='ng-scope']");
+        if (isEmptyListElements(itemsList)) {
+            for (WebElement item : itemsList) {
+                String productNameByCart = item.findElement(By.xpath("//td[@class='ng-scope']")).getText().toLowerCase();
+                return name.equals(productNameByCart);
+            }
         }
-
-        for(WebElement item : itemsList) {
-            String productNameByCart = item.findElement(By.xpath("//td[@class=\"ng-scope\"]")).getText().toLowerCase();
-            return name.equals(productNameByCart);
-        }
-
         return false;
     }
 
